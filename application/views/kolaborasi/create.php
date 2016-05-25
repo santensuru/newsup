@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <?=$error?>
 
-<?php echo form_open('berita/create'); ?>
+<?php echo form_open_multipart('berita/create'); ?>
 	
 	<input type="hidden" name="parent_id" value="<?=$parent_id?>" /><br />
 
@@ -14,7 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<label for="sub_header">Sub Judul</label>
 	<input type="input" name="sub_header" /><br />
 
-	<label for="news">Berita</label>
+	<label for="news">Artikel</label>
 	<input type="input" name="news" /><br />
 
 	<label for="fileGambar">Gambar</label>
@@ -28,6 +28,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	</select>
 	<br />
 
-	<input type="submit" name="submit" value="Bagikan" />
+	<label for="sub category">Sub Kategory</label>
+	<select name="sub category">
+		<?php foreach ($sub_category as $row) {
+			echo '<option value='.$row['CATEGORY_ID'].'>'.$row['CATEGORY_NAME'].'</option>';
+		}?>
+	</select>
+	<br />
+
+	<input type="submit" name="submit" value="Mulai" />
 
 </form>

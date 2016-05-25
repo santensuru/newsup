@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <?=$error?>
 
-<?php echo form_open('berita/create'); ?>
+<?php echo form_open_multipart('berita/create'); ?>
 	
 	<input type="hidden" name="parent_id" value="<?=$parent_id?>" /><br />
 
@@ -23,6 +23,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<label for="category">Kategory</label>
 	<select name="category">
 		<?php foreach ($category as $row) {
+			echo '<option value='.$row['CATEGORY_ID'].'>'.$row['CATEGORY_NAME'].'</option>';
+		}?>
+	</select>
+	<br />
+
+	<label for="sub category">Sub Kategory</label>
+	<select name="sub category">
+		<?php foreach ($sub_category as $row) {
 			echo '<option value='.$row['CATEGORY_ID'].'>'.$row['CATEGORY_NAME'].'</option>';
 		}?>
 	</select>

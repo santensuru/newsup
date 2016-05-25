@@ -58,8 +58,9 @@ class Berita extends CI_Controller {
 
 			$this->load->model('category_model');
 
-			$category = $this->category_model->where('CATEGORY_ID',1)->get();
-			$sub_category = $this->category_model->where('PARENT_ID',1)->get_all();
+			$category = $this->category_model->where('PARENT_ID',1)->get_all();
+			$category_id = $category[0]['CATEGORY_ID'];
+			$sub_category = $this->category_model->where('PARENT_ID',$category_id)->get_all();
 
 			if (!$category)
 			{
@@ -71,12 +72,8 @@ class Berita extends CI_Controller {
 				$sub_category = [];
 			}
 
-			$category_ = array();
-			array_push($category_, $category);
-
-			$category_ = array_merge($category_, $sub_category);
-
-			$data['category'] = $category_;
+			$data['category'] = $category;
+			$data['sub_category'] = $sub_category;
 			$data['header'] = '';
 
 			$this->load->model('berita_model');
@@ -104,16 +101,19 @@ class Berita extends CI_Controller {
 				$news = $this->input->post('news');
 				$header = $this->input->post('header');
 				$sub_header = $this->input->post('sub_header');
-				$category_id = $this->input->post('category');
+				$category_id = $this->input->post('sub_category');
 
 				$parent_id = $this->input->post('parent_id');
 				
 				$config['upload_path'] = './uploads/';
 				$config['allowed_types'] = 'jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF';
 				$config['max_size']	= '2048';
-				$this->load->library( 'upload', $config );
+				
+				$this->load->helper('gambar');
+				$new_name = get_name( $header, $sub_header, $parent_id );
+				$config['file_name'] = $new_name;
 
-				// $this->load->helper('gambar');
+				$this->load->library( 'upload', $config );
 
 				if ( ! $this->upload->do_upload( 'fileGambar' ) )
 				{
@@ -122,7 +122,6 @@ class Berita extends CI_Controller {
 				}
 				else
 				{
-					// rename get_name( $news, $sub_header, $parent_id )
 
 					$this->load->model('user_model');
 					$user = $this->user_model->where('USERNAME',$this->session->userdata('user'))->get();
@@ -136,7 +135,7 @@ class Berita extends CI_Controller {
 					// 	$header = $berita['HEADER'];
 					// }
 
-					$insert_data = array('USER_ID'=>$user_id,'NEWS'=>$news,'PARENT_ID'=>$parent_id,'CATEGORY_ID'=>$category_id,'HEADER'=>$header,'SUB_HEADER'=>$sub_header);
+					$insert_data = array('USER_ID'=>$user_id,'NEWS'=>$news,'PARENT_ID'=>$parent_id,'CATEGORY_ID'=>$category_id,'HEADER'=>$header,'SUB_HEADER'=>$sub_header,'IMAGE'=>$new_name);
 					$this->berita_model->insert($insert_data);
 
 					// if ($parent_id === 0) {

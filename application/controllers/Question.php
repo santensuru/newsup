@@ -15,7 +15,6 @@ class Question extends CI_Controller {
 		
 		if ($news_id !== 0)
 		{
-			$total_posts = $this->question_model->count_rows();
 			$question = $this->question_model->where('NEWS_ID',$news_id)->order_by('QUESTION_ID', 'ASC')->get_all();
 			
 			if (!$question)

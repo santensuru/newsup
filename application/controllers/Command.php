@@ -23,7 +23,10 @@ class Command extends CI_Controller {
 				$command = [];
 			}
 
-			var_dump($command);
+			// var_dump($command);
+
+			$return["_data"] = json_encode($command);
+			echo json_encode($return);
 		}
 		else
 		{

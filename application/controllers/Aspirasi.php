@@ -27,7 +27,7 @@ class Aspirasi extends CI_Controller {
 
 	public function create()
 	{
-		$this->form_validation->set_rules('aspirasi', 'Aspirasi', 'required');
+		$this->form_validation->set_rules('aspirasi', 'Aspirasi', 'required|trim|xss_clean');
 
 		if ($this->form_validation->run() === FALSE)
 		{

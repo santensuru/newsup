@@ -4,9 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Berita extends CI_Controller {
 
 	/**
-	 * Aspirasi
+	 * Berita
 	 * 
-	 * Untuk mengeksekusi semua hal yang berkaitan dengan aspirasi
+	 * Untuk mengeksekusi semua hal yang berkaitan dengan berita
 	 * Insert, Read
 	 */
 	public function index($news_id=0)
@@ -16,7 +16,7 @@ class Berita extends CI_Controller {
 		if ($news_id === 0)
 		{
 			$total_posts = $this->berita_model->count_rows();
-			$berita = $this->berita_model->where('PARENT_ID',0)->order_by('DATE', 'DESC')->paginate(10,$total_posts);
+			$berita = $this->berita_model->where(array('PARENT_ID'=>0,'IS_NEWS'=>1))->order_by('DATE', 'DESC')->paginate(10,$total_posts);
 			
 			if (!$berita)
 			{
@@ -30,8 +30,8 @@ class Berita extends CI_Controller {
 		}
 		else
 		{
-			$berita = $this->berita_model->where('NEWS_ID',$news_id)->get();
-			$sub_berita = $this->berita_model->where('PARENT_ID',$news_id)->order_by('DATE', 'ASC')->get_all();
+			$berita = $this->berita_model->where(array('NEWS_ID'=>$news_id,'IS_NEWS'=>1))->get();
+			$sub_berita = $this->berita_model->where(array('PARENT_ID'=>$news_id,'IS_NEWS'=>1))->order_by('DATE', 'ASC')->get_all();
 
 			if (!$sub_berita)
 			{
@@ -57,14 +57,26 @@ class Berita extends CI_Controller {
 		{
 
 			$this->load->model('category_model');
-			$category = $this->category_model->get_all();
+
+			$category = $this->category_model->where('CATEGORY_ID',1)->get();
+			$sub_category = $this->category_model->where('PARENT_ID',1)->get_all();
 
 			if (!$category)
 			{
 				$category = [];
 			}
 
-			$data['category'] = $category;
+			if (!$sub_category)
+			{
+				$sub_category = [];
+			}
+
+			$category_ = array();
+			array_push($category_, $category);
+
+			$category_ = array_merge($category_, $sub_category);
+
+			$data['category'] = $category_;
 			$data['header'] = '';
 
 			$this->load->model('berita_model');

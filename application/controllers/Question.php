@@ -16,14 +16,17 @@ class Question extends CI_Controller {
 		if ($news_id !== 0)
 		{
 			$total_posts = $this->question_model->count_rows();
-			$command = $this->question_model->where('NEWS_ID',$news_id)->order_by('DATE', 'ASC')->get_all();
+			$question = $this->question_model->where('NEWS_ID',$news_id)->order_by('QUESTION_ID', 'ASC')->get_all();
 			
-			if (!$command)
+			if (!$question)
 			{
-				$command = [];
+				$question = [];
 			}
 
-			var_dump($command);
+			// var_dump($question);
+
+			$return["_data"] = json_encode($question);
+			echo json_encode($return);
 		}
 		else
 		{

@@ -66,11 +66,13 @@ class Berita extends CI_Controller {
 
 			$data['category'] = $category;
 			$data['header'] = '';
-			
+
 			$this->load->model('berita_model');
 			if ($parent_id !== 0) {
 				$berita = $this->berita_model->where('NEWS_ID',$parent_id)->get();
 				$data['header'] = $berita['HEADER'];
+			} else {
+				$data['header'] = $this->input->post('header');
 			}
 
 			$this->form_validation->set_rules('news', 'Berita', 'required|trim|xss_clean');
@@ -134,6 +136,204 @@ class Berita extends CI_Controller {
 
 					redirect('/berita/index/'.$parent_id);
 				}				
+			}
+		}
+		else
+		{
+			redirect('/berita');
+		}
+	}
+
+	public function command($news_id=0)
+	{
+		if ( $this->session->userdata('logged_in') === TRUE )
+		{
+			$this->load->model('berita_model');
+			
+			if ($news_id !== 0 || $this->input->post('news_id') != 0) {
+				if ($news_id === 0) {
+					$news_id = $this->input->post('news_id');
+				}
+				$berita = $this->berita_model->where('NEWS_ID',$news_id)->get();
+				$data['header'] = $berita['HEADER'];
+				$data['sub_header'] = $berita['SUB_HEADER'];
+				$data['parent_id'] = $berita['PARENT_ID'];
+			}
+			else
+			{
+				redirect('/berita');
+			}
+
+			$this->form_validation->set_rules('command', 'Komentar', 'required|trim|xss_clean');
+
+			$data['news_id'] = $news_id;
+
+			if ($this->form_validation->run() === FALSE)
+			{
+				$data['error'] = validation_errors();
+				$this->load->view('berita/command', $data);
+
+			}
+			else
+			{
+				$command = $this->input->post('command');
+				$news_id = $this->input->post('news_id');
+				$parent_id = $this->input->post('parent_id');
+				
+				$this->load->model('user_model');
+				$user = $this->user_model->where('USERNAME',$this->session->userdata('user'))->get();
+				$user_id = $user['USER_ID'];
+
+				$this->load->model('command_model');
+				$insert_data = array('USER_ID'=>$user_id,'COMMAND'=>$command,'NEWS_ID'=>$news_id);
+				$this->command_model->insert($insert_data);
+
+				if ($parent_id == 0) {
+					$parent_id = $news_id;
+				}
+
+				redirect('/berita/index/'.$parent_id);
+			
+			}
+		}
+		else
+		{
+			redirect('/berita');
+		}
+	}
+
+	public function question($news_id=0)
+	{
+		if ( $this->session->userdata('logged_in') === TRUE )
+		{
+			$this->load->model('user_model');
+			$user = $this->user_model->where('USERNAME',$this->session->userdata('user'))->get();
+			$user_id = $user['USER_ID'];
+			
+			$this->load->model('berita_model');
+
+			if ($news_id !== 0 || $this->input->post('news_id') != 0) {
+				if ($news_id === 0) {
+					$news_id = $this->input->post('news_id');
+				}
+				$berita = $this->berita_model->where('NEWS_ID',$news_id)->get();
+				$data['header'] = $berita['HEADER'];
+				$data['sub_header'] = $berita['SUB_HEADER'];
+				$data['parent_id'] = $berita['PARENT_ID'];
+				$author_id = $berita['USER_ID'];
+
+				if ($author_id !== $user_id) {
+					redirect('/berita');
+				}
+			}
+			else
+			{
+				redirect('/berita');
+			}
+
+			$this->form_validation->set_rules('question', 'Pertanyaan', 'required|trim|xss_clean');
+
+			$data['news_id'] = $news_id;
+
+			if ($this->form_validation->run() === FALSE)
+			{
+				$data['error'] = validation_errors();
+				$this->load->view('berita/question', $data);
+
+			}
+			else
+			{
+				$question = $this->input->post('question');
+				$news_id = $this->input->post('news_id');
+				$parent_id = $this->input->post('parent_id');
+				
+				$this->load->model('question_model');
+				$insert_data = array('USER_ID'=>$user_id,'QUESTION'=>$question,'NEWS_ID'=>$news_id);
+				$this->question_model->insert($insert_data);
+
+				if ($parent_id == 0) {
+					$parent_id = $news_id;
+				}
+
+				redirect('/berita/index/'.$parent_id);
+			
+			}
+		}
+		else
+		{
+			redirect('/berita');
+		}
+	}
+
+	public function respond($news_id=0, $question_id=0)
+	{
+		if ( $this->session->userdata('logged_in') === TRUE )
+		{
+			$this->load->model('berita_model');
+			
+			if ($news_id !== 0 || $this->input->post('news_id') != 0) {
+				if ($news_id === 0) {
+					$news_id = $this->input->post('news_id');
+				}
+				$berita = $this->berita_model->where('NEWS_ID',$news_id)->get();
+				$data['header'] = $berita['HEADER'];
+				$data['sub_header'] = $berita['SUB_HEADER'];
+				$data['parent_id'] = $berita['PARENT_ID'];
+			}
+			else
+			{
+				redirect('/berita');
+			}
+
+			if ($question_id !== 0 || $this->input->post('question_id') != 0) {
+				if ($question_id === 0) {
+					$question_id = $this->input->post('question_id');
+				}
+				$question = $this->question_model->where('QUESTION_ID',$question_id)->get();
+				$data['question'] = $question['QUESTION'];
+				$question_news_id = $question['NEWS_ID'];
+
+				if ($question_news_id !== $news_id) {
+					redirect('/berita');
+				}
+			}
+			else
+			{
+				redirect('/berita');
+			}
+
+			$this->form_validation->set_rules('respond', 'Jawaban', 'required|trim|xss_clean');
+
+			$data['news_id'] = $news_id;
+			$data['question_id'] = $question_id;
+
+			if ($this->form_validation->run() === FALSE)
+			{
+				$data['error'] = validation_errors();
+				$this->load->view('berita/respond', $data);
+
+			}
+			else
+			{
+				$respond = $this->input->post('respond');
+				$news_id = $this->input->post('news_id');
+				$question_id = $this->input->post('question_id');
+				$parent_id = $this->input->post('parent_id');
+				
+				$this->load->model('user_model');
+				$user = $this->user_model->where('USERNAME',$this->session->userdata('user'))->get();
+				$user_id = $user['USER_ID'];
+
+				$this->load->model('respond_model');
+				$insert_data = array('USER_ID'=>$user_id,'RESPOND'=>$respond,'QUESTION_ID'=>$question_id);
+				$this->respond_model->insert($insert_data);
+
+				if ($parent_id == 0) {
+					$parent_id = $news_id;
+				}
+
+				redirect('/berita/index/'.$parent_id);
+			
 			}
 		}
 		else

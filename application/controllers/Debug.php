@@ -17,12 +17,10 @@ class Debug extends CI_Controller {
 	public function get_session()
 	{
 		if ( $this->session->userdata('logged_in') === TRUE ) {
-			$return["_data"] = json_encode(TRUE);
-			echo json_encode($return);
+			echo true;
 		}
 		else {
-			$return["_data"] = json_encode(FALSE);
-			echo json_encode($return);
+			echo false;
 		}
 	}
 }

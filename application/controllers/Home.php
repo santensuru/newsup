@@ -10,35 +10,43 @@ class Home extends CI_Controller {
 	 */
 	public function index()
 	{
-		$data = [];
-		$data['is_login'] = FALSE;
-		if ( $this->session->userdata('logged_in') === TRUE ) {
-			$data['is_login'] = TRUE;
-		}
+		$this->load->view('template/header');
 
-		$this->load->view('home', $data);
+		$login = array();
+		$login['is_login'] = FALSE;
+		if ( $this->session->userdata('logged_in') === TRUE ) {
+			$login['is_login'] = TRUE;
+		}
+		$this->load->view('template/navbar',$login);
+
+		$data = array();
+		$this->load->view('index', $data);
+
+		$footer['js_footer'] = $this->load->view('script/index_script','',TRUE);
+		$this->load->view('template/footer',$footer);
 	}
 
 	public function register()
 	{
-		$this->form_validation->set_rules('username', 'Username', 'required|min_length[5]|max_length[50]|trim|xss_clean');
+		$this->form_validation->set_rules('username', 'Username', 'required|min_length[2]|max_length[50]|trim|xss_clean');
 		$this->form_validation->set_rules('email', 'Email', 'required|trim|xss_clean|valid_email|is_unique[user.EMAIL]');
-		$this->form_validation->set_rules('password', 'Password', 'required|min_length[5]|trim|xss_clean');
-		$this->form_validation->set_rules('confirmation', 'Password Confirmation', 'trim|required|matches[password]|xss_clean');
+		$this->form_validation->set_rules('password', 'Password', 'required|min_length[2]|trim|xss_clean');
+		// $this->form_validation->set_rules('confirmation', 'Password Confirmation', 'trim|required|matches[password]|xss_clean');
 
 		if ($this->form_validation->run() === FALSE)
 		{
 			$data['error'] = validation_errors();
-			$this->load->view('register', $data);
+			var_dump($data);
+			// $this->load->view('register', $data);
 		}
 		else
 		{
 			$username = $this->input->post('username');
 			$email = $this->input->post('email');
 			$password = $this->input->post('password');
-			$status = $this->input->post('status');
+			$status = $this->input->post('typeuser');
 
-			$insert_data = array('USERNAME'=>$username,'EMAIL'=>$email,'PASSWORD'=>md5($password.'SALT'.$username), 'STATUS'=>$status);
+			$insert_data = array('USERNAME'=> $username,'EMAIL'=>$email,'PASSWORD'=>md5($password.'SALT'.$username), 'STATUS'=>$status);
 			$this->load->model('user_model');
 			$this->user_model->insert($insert_data);
 
@@ -48,19 +56,25 @@ class Home extends CI_Controller {
 
 	public function login()
 	{
-		$this->form_validation->set_rules('username', 'Username', 'required|min_length[5]|max_length[50]|trim|xss_clean');
-		$this->form_validation->set_rules('password', 'Password', 'required|min_length[5]|trim|xss_clean');
+		$this->form_validation->set_rules('username', 'Username', 'required|min_length[2]|max_length[50]|trim|xss_clean');
+		$this->form_validation->set_rules('pwd', 'Password', 'required|min_length[2]|trim|xss_clean');
+
+		// var_dump($this->input->post());
+		// die();
 
 		if ($this->form_validation->run() === FALSE)
 		{
-			$data['error'] = validation_errors();
-			$this->load->view('login', $data);
+			// $data['error'] = validation_errors();
+			// $this->load->view('login', $data);
+
+			redirect('/');
+
 
 		}
 		else
 		{
 			$username = $this->input->post('username');
-			$password = $this->input->post('password');
+			$password = $this->input->post('pwd');
 
 			$this->load->model('user_model');
 			$user = $this->user_model->where('USERNAME',$username)->get();
@@ -71,12 +85,14 @@ class Home extends CI_Controller {
 					
 				$this->session->set_userdata($user_data);
 
-				redirect('/home');
+				redirect('/');
 			}
 			else
 			{
-				$data['error'] = 'Username dan/atau Password salah';
-				$this->load->view('login', $data);
+				// $data['error'] = 'Username dan/atau Password salah';
+				// $this->load->view('login', $data);
+
+				redirect('/');
 			}
 		}
 	}

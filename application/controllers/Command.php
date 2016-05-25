@@ -9,8 +9,10 @@ class Command extends CI_Controller {
 	 * Untuk mengeksekusi semua hal yang berkaitan dengan komentar berita / artikel
 	 * Insert, Read
 	 */
-	public function index($news_id=0)
+	public function index()
 	{
+		$news_id = $this->input->post('news_id');
+
 		$this->load->model('command_model');
 		
 		if ($news_id !== 0)
@@ -19,13 +21,24 @@ class Command extends CI_Controller {
 			
 			if (!$command)
 			{
-				$command = [];
+				$command = array();
 			}
 
 			// var_dump($command);
 
-			$return["_data"] = json_encode($command);
-			echo json_encode($return);
+			// $return["_data"] = json_encode($command);
+
+			$my_command = array();
+			foreach ($command as $row) {
+				$this->load->model('user_model');
+				$user = $this->user_model->where('USER_ID',$row['USER_ID'])->get();
+
+				$row['USERNAME']=$user['USERNAME'];
+
+				array_push($my_command, $row);
+			}
+
+			echo json_encode($my_command);
 		}
 		else
 		{

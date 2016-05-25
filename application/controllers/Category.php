@@ -9,8 +9,10 @@ class Category extends CI_Controller {
 	 * Untuk mengeksekusi semua hal yang berkaitan dengan category berita / artikel
 	 * Insert, Read
 	 */
-	public function index($category_id=0)
+	public function index()
 	{
+		$category_id=$this->input->post("id");
+
 		$this->load->model('category_model');
 		
 		if ($category_id !== 0)
@@ -19,13 +21,11 @@ class Category extends CI_Controller {
 			
 			if (!$sub_category)
 			{
-				$sub_category = [];
+				$sub_category = array();
 			}
 
 			// var_dump($sub_category);
-
-			$return["_data"] = json_encode($sub_category);
-			echo json_encode($return);
+			echo json_encode($sub_category);
 		}
 		else
 		{

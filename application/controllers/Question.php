@@ -19,7 +19,7 @@ class Question extends CI_Controller {
 			
 			if (!$question)
 			{
-				$question = [];
+				$question = array();
 			}
 
 			// var_dump($question);

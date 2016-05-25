@@ -11,18 +11,41 @@ class Aspirasi extends CI_Controller {
 	 */
 	public function index()
 	{
+		$this->load->view('template/header');
+		$login = array();
+		$login['is_login'] = FALSE;
+		if ( $this->session->userdata('logged_in') === TRUE ) {
+			$login['is_login'] = TRUE;
+		}
+		$this->load->view('template/navbar',$login);
+
+		$this->load->helper('share');
+
 		$this->load->model('aspirasi_model');
 		$total_posts = $this->aspirasi_model->count_rows();
 		$aspirasi = $this->aspirasi_model->order_by('DATE', 'DESC')->paginate(10,$total_posts); // as_array()->get_all();
 
 		if (!$aspirasi)
 		{
-			$aspirasi = [];
+			$aspirasi = array();
 		}
 
-		$data['aspirasi'] = $aspirasi;
-		$data['paginasi'] = $this->aspirasi_model->all_pages;
-		$this->load->view('aspirasi', $data);
+		$aspirasi_ = array();
+		foreach ($aspirasi as $row) {
+			$this->load->model('user_model');
+			$user = $this->user_model->where('USER_ID',$row['USER_ID'])->get();
+
+			$row['USERNAME']=$user['USERNAME'];
+
+			array_push($aspirasi_, $row);
+		}
+
+		$data['aspirasi'] = $aspirasi_;
+
+		$this->load->view('aspirasi_masyarakat',$data);
+		
+		$footer['js_footer'] = $this->load->view('script/aspirasi_masyarakat_script','',TRUE);
+		$this->load->view('template/footer',$footer);
 	}
 
 	public function create()
@@ -38,7 +61,7 @@ class Aspirasi extends CI_Controller {
 		{
 			$aspirasi = $this->input->post('aspirasi');
 			$user_id = 0;
-			if ( $this->session->userdata('logged_in') === TRUE ) {
+			if ( $this->session->userdata('logged_in') === TRUE && $this->input->post('anon') != "1" ) {
 				$this->load->model('user_model');
 				$user = $this->user_model->where('USERNAME',$this->session->userdata('user'))->get();
 				$user_id = $user['USER_ID'];
